@@ -1,0 +1,696 @@
+/* ============================================================
+   GALERÍA DE JUEGOS THREE.JS — JUEGOS 3D
+   Salón recreativo oscuro con neones. Estructura en dos capas que
+   funciona también sin WebGL:
+     html.gl-on : con escena 3D (las miniaturas se ven en las máquinas)
+     html.no-gl : solo HTML (las miniaturas se muestran en las tarjetas)
+   ============================================================ */
+
+:root {
+  interpolate-size: allow-keywords; /* transición height:auto de <details> */
+  --bg: #05060e;
+  --bg-panel: rgba(9, 11, 24, 0.82);
+  --ink: #eef0ff;
+  --ink-dim: #9aa0c0;
+  --line: rgba(140, 150, 220, 0.18);
+  --font-display: "Chakra Petch", "Manrope", sans-serif; /* titulares */
+  --font-text: "Manrope", system-ui, sans-serif;          /* lectura */
+  --font-pixel: "Press Start 2P", "JetBrains Mono", monospace; /* detalles pixel */
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;  /* metadatos */
+  --font-brand: "Unbounded", "Chakra Petch", sans-serif;   /* logotipo */
+  --c1: #64d7ff;
+  --c2: #b48cff;
+}
+
+/* Acento de cada juego (sincronizado con el neón de la máquina 3D:
+   main.js lee estas variables desde el DOM) */
+[data-accent="guau"]    { --c1: #ffb340; --c2: #ff5e62; }
+[data-accent="paloma"]  { --c1: #6ec6ff; --c2: #b0f2ff; }
+[data-accent="gamba"]   { --c1: #4dffb8; --c2: #38b6ff; }
+[data-accent="deriva"]  { --c1: #e07bff; --c2: #7b6cff; }
+[data-accent="canto"]   { --c1: #9ae66e; --c2: #ffd76e; }
+[data-accent="vertigo"] { --c1: #8ff0ff; --c2: #1f6bff; }
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-text);
+  font-weight: 400;
+  line-height: 1.85;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+a { color: inherit; }
+
+::selection { background: rgba(122, 140, 255, 0.4); }
+
+/* ---------- Lienzo de fondo y capas superpuestas ---------- */
+
+#gl {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  z-index: 0;
+}
+html.no-gl #gl { display: none; }
+
+.grain {
+  position: fixed;
+  inset: -50%;
+  z-index: 2;
+  pointer-events: none;
+  opacity: 0.055;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+html.no-gl .grain { opacity: 0.035; }
+
+/* Fondo del modo solo-HTML (degradados + rejilla) */
+html.no-gl body {
+  background:
+    radial-gradient(1100px 700px at 80% -10%, rgba(90, 70, 200, 0.22), transparent 60%),
+    radial-gradient(900px 700px at 10% 110%, rgba(30, 120, 200, 0.16), transparent 60%),
+    var(--bg);
+}
+
+/* ---------- Cargador ---------- */
+
+.loader {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+  transition: opacity 0.6s ease, visibility 0.6s;
+}
+.loader.done { opacity: 0; visibility: hidden; }
+html.no-gl .loader { display: none; }
+
+.loader-inner {
+  text-align: center;
+  /* El texto se oculta hasta que las fuentes están listas (.fonts-in)
+     para que no se vea el cambio de tipografía */
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+.loader.fonts-in .loader-inner {
+  opacity: 1;
+  transform: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .loader-inner { transition: opacity 0.5s ease; transform: none; }
+}
+.loader-brand {
+  font-family: var(--font-brand);
+  font-weight: 800;
+  font-size: clamp(24px, 4.4vw, 48px);
+  line-height: 1;
+  letter-spacing: 0;
+  color: var(--ink);
+}
+.loader-title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(15px, 3.4vw, 26px);
+  letter-spacing: 0.18em;
+  margin-top: 12px;
+  background: linear-gradient(90deg, #6ec6ff, #b48cff, #ff8bd4);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.loader-bar {
+  width: min(280px, 60vw);
+  height: 2px;
+  margin: 26px auto 0;
+  background: rgba(140, 150, 220, 0.18);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.loader-bar i {
+  display: block;
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #6ec6ff, #b48cff);
+  transition: width 0.3s ease;
+}
+.loader-hint {
+  font-family: var(--font-pixel);
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  color: var(--ink-dim);
+  margin-top: 16px;
+  animation: blink 1.1s steps(2, start) infinite;
+}
+@keyframes blink { to { visibility: hidden; } }
+@media (prefers-reduced-motion: reduce) {
+  .loader-hint { animation: none; }
+}
+
+/* Moneda: al terminar la carga cae en la ranura y se abre el salón */
+.loader-coin {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  margin: 20px auto 0;
+  position: relative;
+  opacity: 0;
+  background: radial-gradient(circle at 35% 30%, #ffe9a0, #f0b429 60%, #b97e12);
+  box-shadow: 0 0 18px rgba(255, 200, 80, 0.6), inset 0 0 0 3px rgba(140, 90, 0, 0.35);
+}
+.loader-coin::after {
+  content: "★";
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: #8a5c00;
+  font-size: 15px;
+}
+.loader.inserting .loader-coin {
+  animation: coindrop 0.72s cubic-bezier(0.5, 0, 0.65, 0.4) forwards;
+}
+@keyframes coindrop {
+  0%   { opacity: 0; transform: translateY(-110px) rotateY(0deg); }
+  18%  { opacity: 1; }
+  84%  { transform: translateY(24px) rotateY(650deg) scale(1); opacity: 1; }
+  100% { transform: translateY(30px) rotateY(720deg) scale(0.25); opacity: 0; }
+}
+.loader.inserting .loader-bar i {
+  box-shadow: 0 0 22px rgba(255, 210, 110, 0.9);
+  background: linear-gradient(90deg, #ffd86e, #ffb340);
+}
+.loader.inserting .loader-hint {
+  animation-duration: 0.28s;
+  color: #ffd86e;
+}
+@media (prefers-reduced-motion: reduce) {
+  .loader.inserting .loader-coin { animation: none; }
+}
+
+/* ---------- Progreso de scroll ---------- */
+
+.progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  z-index: 40;
+  background: linear-gradient(90deg, var(--c1, #6ec6ff), #b48cff);
+  transform-origin: 0 0;
+  transform: scaleX(0);
+  pointer-events: none;
+}
+
+/* ---------- Cabecera ---------- */
+
+.site-head {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px clamp(18px, 4vw, 44px);
+}
+.site-head-brand {
+  font-family: var(--font-brand);
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+  color: var(--ink);
+}
+.site-head-right { display: flex; align-items: center; gap: 14px; }
+.site-head-link {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  color: var(--ink-dim);
+  text-decoration: none;
+  border: 1px solid var(--line);
+  border-radius: 100px;
+  padding: 7px 14px;
+  transition: color 0.25s, border-color 0.25s, box-shadow 0.25s;
+}
+.site-head-link:hover {
+  color: var(--ink);
+  border-color: rgba(110, 198, 255, 0.55);
+  box-shadow: 0 0 16px rgba(110, 198, 255, 0.25);
+}
+.gl-toggle {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  color: var(--ink-dim);
+  background: none;
+  border: 1px solid var(--line);
+  border-radius: 100px;
+  padding: 7px 14px;
+  cursor: pointer;
+  transition: color 0.25s, border-color 0.25s;
+}
+.gl-toggle span { color: #4dffb8; }
+.gl-toggle[aria-pressed="false"] span { color: #ff5e62; }
+.gl-toggle:hover { color: var(--ink); border-color: rgba(140, 150, 220, 0.5); }
+
+/* ---------- Maquetación común ---------- */
+
+.content { position: relative; z-index: 10; }
+
+/* Con el 3D activo el DOM deja pasar el puntero para poder señalar y
+   pulsar las máquinas del lienzo (solo los paneles reciben eventos) */
+html.gl-on .content { pointer-events: none; }
+html.gl-on .content .game-card,
+html.gl-on .content .game-thumb,
+html.gl-on .content .about-inner,
+html.gl-on .content .faq details,
+html.gl-on .content .site-foot,
+html.gl-on .content .hero-lead,
+html.gl-on .content .hero-title { pointer-events: auto; }
+
+.section {
+  min-height: 100vh;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 12vh clamp(18px, 6vw, 90px);
+}
+
+/* ---------- Portada ---------- */
+
+.hero { align-items: flex-start; }
+
+/* Entrada escalonada al abrirse el cargador (gl-on) */
+html.gl-on .hero-eyebrow,
+html.gl-on .hero-title,
+html.gl-on .hero-lead,
+html.gl-on .hero-scroll {
+  opacity: 0;
+  transform: translateY(26px);
+  animation: rise 1.1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+html.gl-on .hero-eyebrow { animation-delay: 1.1s; }
+html.gl-on .hero-title   { animation-delay: 1.3s; }
+html.gl-on .hero-lead    { animation-delay: 1.7s; }
+html.gl-on .hero-scroll  { animation-delay: 2.2s; }
+@keyframes rise {
+  to { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  html.gl-on .hero-eyebrow,
+  html.gl-on .hero-title,
+  html.gl-on .hero-lead,
+  html.gl-on .hero-scroll {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Telón oscuro que mejora la legibilidad sobre el 3D (lado izquierdo) */
+.hero { position: relative; }
+html.gl-on .hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(90vh 80vh at 24% 50%, rgba(3, 4, 10, 0.6), transparent 70%);
+}
+
+.hero-eyebrow {
+  font-family: var(--font-mono);
+  font-size: clamp(10px, 1.4vw, 12px);
+  letter-spacing: 0.3em;
+  color: var(--ink-dim);
+  margin-bottom: 2.2em;
+}
+.hero-title { line-height: 1.04; }
+.hero-title-en {
+  display: block;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(46px, 11vw, 132px);
+  letter-spacing: 0.01em;
+  background: linear-gradient(115deg, #eaf6ff 20%, #6ec6ff 48%, #b48cff 72%, #ff8bd4 96%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 0 26px rgba(110, 160, 255, 0.35));
+}
+.hero-title-sub {
+  display: block;
+  font-family: var(--font-pixel);
+  font-size: clamp(10px, 1.6vw, 14px);
+  letter-spacing: 0.22em;
+  line-height: 1.8;
+  color: var(--ink-dim);
+  margin-top: 2.4em;
+}
+.hero-lead {
+  max-width: 36em;
+  margin-top: 2.6em;
+  font-size: clamp(13px, 1.7vw, 15px);
+  color: #c9cde8;
+}
+.hero-scroll {
+  margin-top: 7vh;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.4em;
+  color: var(--ink-dim);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.hero-scroll span {
+  display: block;
+  width: 1px;
+  height: 44px;
+  background: linear-gradient(180deg, transparent, #6ec6ff);
+  animation: drip 1.8s ease-in-out infinite;
+}
+@keyframes drip {
+  0%   { transform: scaleY(0); transform-origin: top; }
+  50%  { transform: scaleY(1); transform-origin: top; }
+  51%  { transform-origin: bottom; }
+  100% { transform: scaleY(0); transform-origin: bottom; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-scroll span { animation: none; }
+}
+
+/* ---------- Secciones de juego ---------- */
+
+.game { align-items: flex-start; gap: 34px; }
+.game:nth-of-type(even) { align-items: flex-end; }
+
+.game-card {
+  max-width: 560px;
+  background: var(--bg-panel);
+  border: 1px solid color-mix(in srgb, var(--c1) 32%, transparent);
+  border-radius: 22px;
+  padding: clamp(26px, 4vw, 44px);
+  box-shadow:
+    0 30px 70px rgba(0, 0, 0, 0.55),
+    0 0 0 1px rgba(255, 255, 255, 0.02) inset,
+    0 0 44px color-mix(in srgb, var(--c1) 9%, transparent);
+}
+
+.game-no {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.28em;
+  color: var(--c1);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.game-genre {
+  font-family: var(--font-pixel);
+  font-size: 8px;
+  letter-spacing: 0.12em;
+  line-height: 1;
+  color: var(--ink-dim);
+  border: 1px solid var(--line);
+  border-radius: 100px;
+  padding: 7px 12px 6px;
+}
+
+.game-title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(32px, 5.6vw, 56px);
+  letter-spacing: 0.02em;
+  line-height: 1.1;
+  margin-top: 0.55em;
+  color: #fff;
+  text-shadow: 0 0 30px color-mix(in srgb, var(--c1) 55%, transparent);
+}
+.game-title-sub {
+  display: block;
+  font-family: var(--font-text);
+  font-weight: 700;
+  font-size: clamp(12px, 1.8vw, 14px);
+  letter-spacing: 0.12em;
+  color: var(--ink-dim);
+  margin-top: 0.9em;
+}
+
+.game-desc {
+  margin-top: 1.6em;
+  font-size: clamp(13px, 1.6vw, 14.5px);
+  color: #c9cde8;
+}
+
+.game-tech {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 6px 18px;
+  margin-top: 1.8em;
+  border-top: 1px solid var(--line);
+  padding-top: 1.4em;
+}
+.game-tech dt {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  color: var(--ink-dim);
+  padding-top: 4px;
+}
+.game-tech dd {
+  font-size: 12.5px;
+  color: #b9bede;
+}
+
+.game-play {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 2.2em;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: #05060e;
+  background: linear-gradient(90deg, var(--c1), var(--c2));
+  border-radius: 100px;
+  padding: 14px 34px;
+  box-shadow: 0 0 26px color-mix(in srgb, var(--c1) 45%, transparent);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+.game-play:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 6px 40px color-mix(in srgb, var(--c1) 65%, transparent);
+}
+.game-play span { transition: transform 0.25s ease; }
+.game-play:hover span { transform: translateX(4px); }
+
+/* Miniatura: con el 3D activo se oculta (se ve en la pantalla de la máquina) */
+.game-thumb {
+  display: block;
+  max-width: 560px;
+  width: 100%;
+  border-radius: 18px;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--c1) 30%, transparent);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5), 0 0 34px color-mix(in srgb, var(--c1) 12%, transparent);
+  transition: transform 0.35s ease, box-shadow 0.35s ease;
+}
+.game-thumb img { display: block; width: 100%; height: auto; }
+.game-thumb:hover {
+  transform: translateY(-4px) rotate(-0.4deg);
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.6), 0 0 50px color-mix(in srgb, var(--c1) 22%, transparent);
+}
+html.gl-on .game-thumb { display: none; }
+
+/* ---------- Sobre Three.js ---------- */
+
+.about { align-items: center; }
+.about-inner {
+  max-width: 720px;
+  background: var(--bg-panel);
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  padding: clamp(28px, 5vw, 56px);
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.5);
+}
+.about-title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(24px, 3.8vw, 34px);
+  letter-spacing: 0.04em;
+  margin-bottom: 1.2em;
+  background: linear-gradient(90deg, #eaf6ff, #6ec6ff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.about-inner p {
+  font-size: clamp(13px, 1.6vw, 14.5px);
+  color: #c9cde8;
+}
+.about-inner p + p { margin-top: 1.4em; }
+.about-inner a { color: #6ec6ff; text-underline-offset: 4px; }
+.about-facts {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 10px 22px;
+  margin-top: 2em;
+  border-top: 1px solid var(--line);
+  padding-top: 1.6em;
+}
+.about-facts dt {
+  font-family: var(--font-pixel);
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  color: var(--ink-dim);
+  padding-top: 6px;
+}
+.about-facts dd { font-size: 13px; color: #b9bede; }
+
+/* ---------- Preguntas frecuentes ---------- */
+
+.faq { align-items: center; }
+.faq-title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(22px, 3.4vw, 30px);
+  letter-spacing: 0.06em;
+  margin-bottom: 1.6em;
+}
+.faq details {
+  width: min(720px, 100%);
+  background: var(--bg-panel);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  margin-bottom: 12px;
+  overflow: hidden;
+}
+.faq summary {
+  cursor: pointer;
+  list-style: none;
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: 0.02em;
+  padding: 18px 48px 18px 22px;
+  position: relative;
+  transition: color 0.2s;
+}
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary::after {
+  content: "+";
+  position: absolute;
+  right: 22px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-family: var(--font-mono);
+  color: #6ec6ff;
+}
+.faq details[open] summary::after { content: "−"; }
+.faq summary:hover { color: #6ec6ff; }
+.faq details p {
+  padding: 0 22px 20px;
+  font-size: 13.5px;
+  color: #c9cde8;
+}
+/* Acordeón suave (solo navegadores compatibles; el resto abre al instante) */
+.faq details::details-content {
+  block-size: 0;
+  overflow: hidden;
+  transition: block-size 0.35s ease, content-visibility 0.35s allow-discrete;
+}
+.faq details[open]::details-content { block-size: auto; }
+@media (prefers-reduced-motion: reduce) {
+  .faq details::details-content { transition: none; }
+}
+.faq details a { color: #6ec6ff; text-underline-offset: 4px; }
+
+/* ---------- Pie ---------- */
+
+.site-foot {
+  min-height: 72vh;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+.site-foot-logo {
+  font-family: var(--font-brand);
+  font-weight: 800;
+  text-transform: uppercase;
+  font-size: clamp(34px, 7.4vw, 110px);
+  line-height: 0.95;
+  letter-spacing: 0;
+  text-shadow: 0 0 34px rgba(110, 198, 255, 0.35);
+}
+.site-foot-nav {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px 26px;
+  margin-top: 2.4em;
+}
+.site-foot-nav a {
+  font-size: 12.5px;
+  letter-spacing: 0.08em;
+  color: var(--ink-dim);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: color 0.2s, border-color 0.2s;
+}
+.site-foot-nav a:hover { color: var(--ink); border-color: #6ec6ff; }
+.site-foot-note {
+  margin-top: 3em;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  line-height: 2.2;
+  color: var(--ink-dim);
+}
+.site-foot-note a {
+  color: #9fb6ff;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(159, 182, 255, 0.35);
+  transition: color 0.2s, border-color 0.2s;
+}
+.site-foot-note a:hover { color: var(--ink); border-color: #6ec6ff; }
+
+/* ---------- Foco ---------- */
+
+a:focus-visible,
+button:focus-visible,
+summary:focus-visible {
+  outline: 2px solid #6ec6ff;
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* ---------- Adaptable ---------- */
+
+@media (max-width: 760px) {
+  .section { padding: 14vh 20px; }
+  .game, .game:nth-of-type(even) { align-items: stretch; }
+  .game-card { max-width: none; }
+  .site-head { padding: 14px 18px; }
+  .site-head-link { display: none; }
+  /* Móvil con 3D activo: la tarjeta baja para dejar ver la máquina */
+  html.gl-on .game { justify-content: flex-end; padding-bottom: 8vh; }
+}
