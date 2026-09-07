@@ -1,0 +1,63 @@
+/* ============================================================
+   TIPOGRAFÍAS LOCALES (subconjunto latino, licencia SIL OFL 1.1)
+   Unbounded ......... marca / logotipo
+   Chakra Petch ...... titulares y rótulos (estilo arcade/tecno)
+   Press Start 2P .... detalles pixelados (INSERTA UNA MONEDA, etiquetas)
+   JetBrains Mono .... metadatos y microtextos
+   Manrope ........... texto de lectura
+   Licencias completas en /fonts/LICENSES/
+   ============================================================ */
+
+@font-face {
+  font-family: "Unbounded";
+  font-style: normal;
+  font-weight: 200 900;
+  font-display: swap;
+  src: url(../fonts/unbounded-latin-wght-normal.woff2) format("woff2");
+}
+
+@font-face {
+  font-family: "Chakra Petch";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(../fonts/chakra-petch-latin-400-normal.woff2) format("woff2");
+}
+@font-face {
+  font-family: "Chakra Petch";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url(../fonts/chakra-petch-latin-600-normal.woff2) format("woff2");
+}
+@font-face {
+  font-family: "Chakra Petch";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url(../fonts/chakra-petch-latin-700-normal.woff2) format("woff2");
+}
+
+@font-face {
+  font-family: "Press Start 2P";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(../fonts/press-start-2p-latin-400-normal.woff2) format("woff2");
+}
+
+@font-face {
+  font-family: "JetBrains Mono";
+  font-style: normal;
+  font-weight: 100 800;
+  font-display: swap;
+  src: url(../fonts/jetbrains-mono-latin-wght-normal.woff2) format("woff2");
+}
+
+@font-face {
+  font-family: "Manrope";
+  font-style: normal;
+  font-weight: 200 800;
+  font-display: swap;
+  src: url(../fonts/manrope-latin-wght-normal.woff2) format("woff2");
+}
