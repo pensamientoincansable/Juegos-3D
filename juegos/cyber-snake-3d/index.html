@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CYBER SNAKE — Nanobot Hunter | JUEGOS 3D</title>
+<meta name="description" content="CYBER SNAKE (Nanobot Hunter): serpiente neón 3D con turbo x3, agujeros cuánticos para bajar de piso y vista en primera persona. Página de redirección de JUEGOS 3D.">
+<meta name="robots" content="noindex, follow">
+<meta http-equiv="refresh" content="2.5; url=https://pensamientoincansable.github.io/Cyber-snake/">
+<meta name="theme-color" content="#05060e">
+<meta property="og:title" content="CYBER SNAKE — Nanobot Hunter">
+<meta property="og:description" content="CYBER SNAKE (Nanobot Hunter): serpiente neón 3D con turbo x3, agujeros cuánticos para bajar de piso y vista en primera persona. Página de redirección de JUEGOS 3D.">
+<meta property="og:image" content="../../img/cyber-snake-3d.jpg">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2305060e'/%3E%3Crect x='14' y='16' width='36' height='24' rx='4' fill='none' stroke='%236ec6ff' stroke-width='4'/%3E%3Ccircle cx='24' cy='48' r='4' fill='%23ff8bd4'/%3E%3Ccircle cx='40' cy='48' r='4' fill='%23b48cff'/%3E%3C/svg%3E">
+<link rel="preload" href="../../fonts/chakra-petch-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../../css/fonts.css">
+<style>
+  :root { --bg:#05060e; --ink:#eef0ff; --ink-dim:#9aa0c0; --line:rgba(140,150,220,0.18); --c1:#43ffd0; --c2:#ff5ad1; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    min-height:100vh; display:grid; place-items:center; padding:24px;
+    background:
+      radial-gradient(900px 600px at 50% -10%, color-mix(in srgb, var(--c1) 18%, transparent), transparent 65%),
+      radial-gradient(900px 700px at 10% 110%, rgba(30,120,200,0.16), transparent 60%),
+      var(--bg);
+    color:var(--ink); font-family:"Manrope", system-ui, sans-serif; line-height:1.8; -webkit-font-smoothing:antialiased;
+  }
+  .card {
+    width:min(640px, 100%); background:rgba(9,11,24,0.82); border:1px solid color-mix(in srgb, var(--c1) 32%, transparent);
+    border-radius:22px; padding:clamp(26px,4vw,44px); text-align:center;
+    box-shadow:0 30px 70px rgba(0,0,0,0.55), 0 0 44px color-mix(in srgb, var(--c1) 9%, transparent);
+  }
+  .shot { display:block; width:100%; height:auto; border-radius:14px; border:1px solid color-mix(in srgb, var(--c1) 30%, transparent); margin-bottom:26px; }
+  .no { font-family:"JetBrains Mono", monospace; font-size:11px; letter-spacing:0.28em; color:var(--c1); }
+  .genre { font-family:"Press Start 2P", monospace; font-size:8px; letter-spacing:0.12em; color:var(--ink-dim); border:1px solid var(--line); border-radius:100px; padding:7px 12px 6px; margin-left:12px; vertical-align:middle; }
+  h1 { font-family:"Chakra Petch", sans-serif; font-weight:700; font-size:clamp(32px,6vw,54px); letter-spacing:0.02em; line-height:1.1; margin-top:0.5em; text-shadow:0 0 30px color-mix(in srgb, var(--c1) 55%, transparent); }
+  h1 small { display:block; font-family:"Manrope", sans-serif; font-weight:700; font-size:clamp(12px,1.8vw,14px); letter-spacing:0.12em; color:var(--ink-dim); margin-top:0.9em; }
+  .desc { margin-top:1.4em; font-size:14px; color:#c9cde8; text-align:left; }
+  .redirect { margin-top:2em; }
+  .redirect-label { font-family:"Press Start 2P", monospace; font-size:11px; letter-spacing:0.16em; line-height:2;
+    background:linear-gradient(90deg, var(--c1), var(--c2)); -webkit-background-clip:text; background-clip:text; color:transparent; animation:blink 1.1s steps(2,start) infinite; }
+  @keyframes blink { to { visibility:hidden; } }
+  .redirect-bar { height:6px; border-radius:100px; background:rgba(140,150,220,0.15); overflow:hidden; margin-top:10px; }
+  .redirect-bar i { display:block; height:100%; width:0; border-radius:100px;
+    background:linear-gradient(90deg, var(--c1), var(--c2));
+    box-shadow:0 0 12px color-mix(in srgb, var(--c1) 60%, transparent);
+    animation:fill 2s linear forwards; }
+  @keyframes fill { to { width:100%; } }
+  .play { display:inline-flex; align-items:center; gap:10px; margin-top:2em; font-family:"Chakra Petch", sans-serif; font-weight:700; font-size:15px; letter-spacing:0.2em; text-transform:uppercase; text-decoration:none; color:#05060e; background:linear-gradient(90deg, var(--c1), var(--c2)); border-radius:100px; padding:14px 30px; box-shadow:0 0 26px color-mix(in srgb, var(--c1) 45%, transparent); transition:transform .25s, box-shadow .25s; }
+  .play:hover { transform:translateY(-2px) scale(1.02); }
+  .back { display:inline-block; margin-top:1.6em; font-family:"JetBrains Mono", monospace; font-size:11px; letter-spacing:0.14em; color:var(--ink-dim); text-decoration:none; border:1px solid var(--line); border-radius:100px; padding:8px 16px; transition:color .25s, border-color .25s; }
+  .back:hover { color:var(--ink); border-color:color-mix(in srgb, var(--c1) 55%, transparent); }
+  @media (prefers-reduced-motion: reduce) {
+    .redirect-label { animation:none; }
+    .redirect-bar i { animation:none; width:100%; }
+    .play, .play:hover { transition:none; transform:none; }
+  }
+</style>
+</head>
+<body>
+  <main class="card">
+    <img class="shot" src="../../img/cyber-snake-3d.jpg" width="1376" height="768" alt="CYBER SNAKE — serpiente neón persiguiendo nanobots sobre un tablero con skyline retro-futurista">
+    <p class="no">JUEGO 02<span class="genre">SNAKE NEÓN</span></p>
+    <h1>CYBER SNAKE<small>Nanobot Hunter</small></h1>
+    <p class="desc">La serpiente de siempre, hecha neón: traga nanobots para crecer, activa el turbo x3 y, al alcanzar el umbral de crecimiento, desciende a un piso inferior a través de un agujero cuántico. Vista cenital o en primera persona desde la cabeza, récords y un horizonte retro-futurista con brillo bloom.</p>
+    <div class="redirect" role="status">
+      <div class="redirect-label">REDIRIGIENDO AL JUEGO…</div>
+      <div class="redirect-bar"><i></i></div>
+    </div>
+    <a class="play" href="https://pensamientoincansable.github.io/Cyber-snake/" target="_blank" rel="noopener">Jugar ahora<span>→</span></a>
+    <br>
+    <a class="back" href="../../#cyber-snake-3d">← Volver a la galería</a>
+  </main>
+<script>
+/* Redirección automática al juego (Cyber Snake).
+   El meta refresh del <head> hace de respaldo si JavaScript no está disponible. */
+setTimeout(function () { location.replace('https://pensamientoincansable.github.io/Cyber-snake/'); }, 2000);
+</script>
+</body>
+</html>

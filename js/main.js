@@ -521,7 +521,8 @@ function buildCabinet(game) {
 /* ---------- Construcción del mundo ---------- */
 
 function buildWorld(games, texLoader) {
-  // Suelo (rejilla por shader)
+  // Suelo totalmente liso (sin cuadrícula): solo un brillo radial suave que
+  // se funde con el fondo; el plano oscuro de debajo da la base mate
   const floorMat = new THREE.ShaderMaterial({
     transparent: true,
     uniforms: { uColor: { value: new THREE.Color(0x3a4a9f) } },
@@ -532,14 +533,9 @@ function buildWorld(games, texLoader) {
       varying vec3 vPos;
       uniform vec3 uColor;
       void main(){
-        vec2 fw = fwidth(vPos.xy * 0.5);
-        vec2 g = abs(fract(vPos.xy * 0.5) - 0.5) / fw;
-        float line = 1.0 - min(min(g.x, g.y), 1.0);
-        float dist = length(vPos.xy) * 0.012;
-        float fade = exp(-dist * dist * 2.2);
-        // A lo lejos las líneas miden menos de 1 px: se funden para evitar parpadeos
-        float melt = 1.0 - smoothstep(0.3, 0.75, max(fw.x, fw.y));
-        gl_FragColor = vec4(uColor, line * 0.5 * fade * melt + 0.02 * fade);
+        float dist = length(vPos.xy) * 0.013;
+        float fade = exp(-dist * dist * 2.0);
+        gl_FragColor = vec4(uColor, 0.05 * fade);
       }`
   });
   const floor = new THREE.Mesh(new THREE.PlaneGeometry(320, 320), floorMat);
@@ -793,18 +789,19 @@ function buildWorld(games, texLoader) {
   }));
   scene.add(particles);
 
-  // Luces (pensadas para que cada cara de la máquina tenga un tono distinto)
-  scene.add(new THREE.HemisphereLight(0x35407a, 0x05060e, 1.4));
-  const moonKey = new THREE.DirectionalLight(0xbcd0ff, 1.8); // luz principal lunar
+  // Luces (pensadas para que cada cara de la máquina tenga un tono distinto).
+  // Intensidades atenuadas un punto para que el neón no deslumbre
+  scene.add(new THREE.HemisphereLight(0x35407a, 0x05060e, 1.1));
+  const moonKey = new THREE.DirectionalLight(0xbcd0ff, 1.5); // luz principal lunar
   moonKey.position.set(-6, 10, 8);
   scene.add(moonKey);
-  const key = new THREE.PointLight(0x6ec6ff, 46, 40);
+  const key = new THREE.PointLight(0x6ec6ff, 38, 40);
   key.position.set(0, 6, 2);
   scene.add(key);
-  const mid = new THREE.PointLight(0xb48cff, 40, 40);
+  const mid = new THREE.PointLight(0xb48cff, 33, 40);
   mid.position.set(0, 5, zLast / 2);
   scene.add(mid);
-  const end = new THREE.PointLight(0xff8bd4, 34, 36);
+  const end = new THREE.PointLight(0xff8bd4, 28, 36);
   end.position.set(0, 5, zLast - 6);
   scene.add(end);
 
@@ -925,9 +922,9 @@ function initGL() {
     composer.addPass(new RenderPass(scene, camera));
     composer.addPass(new UnrealBloomPass(
       new THREE.Vector2(innerWidth, innerHeight),
-      0.5, // intensidad
-      0.5, // radio
-      0.8  // umbral (solo brillan los neones HDR; las pantallas no se queman)
+      0.42, // intensidad (atenuada para que no deslumbre)
+      0.5,  // radio
+      0.8   // umbral (solo brillan los neones HDR; las pantallas no se queman)
     ));
     composer.addPass(new OutputPass());
   }
