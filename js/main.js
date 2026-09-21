@@ -49,7 +49,7 @@ const isMobile = matchMedia('(max-width: 760px)').matches;
    ============================================================ */
 const CONFIG = {
   musicaVolumen: 5, // volumen de la música (1–10)
-  brillo: 3,        // brillo de la escena y los neones (1–10): los neones deslumbraban
+  brillo: 4,        // brillo de la escena y los neones (1–10)
   contraste: 5      // contraste de la imagen (1–10); 5 = neutro
 };
 

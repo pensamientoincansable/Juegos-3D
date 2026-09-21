@@ -46,7 +46,7 @@ defecto. Para cambiarla basta con editar los números (1 = mínimo, 10 = máximo
 ```js
 const CONFIG = {
   musicaVolumen: 5, // volumen de la música de fondo (1–10)
-  brillo: 3,        // brillo de la escena 3D y sus neones (1–10)
+  brillo: 4,        // brillo de la escena 3D y sus neones (1–10)
   contraste: 5,     // contraste de la imagen (1–10; 5 = neutro)
 };
 ```
