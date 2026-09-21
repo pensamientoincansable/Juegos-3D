@@ -24,12 +24,10 @@
 
 /* Acento de cada juego (sincronizado con el neón de la máquina 3D:
    main.js lee estas variables desde el DOM) */
-[data-accent="guau"]    { --c1: #ffb340; --c2: #ff5e62; }
-[data-accent="paloma"]  { --c1: #6ec6ff; --c2: #b0f2ff; }
-[data-accent="gamba"]   { --c1: #4dffb8; --c2: #38b6ff; }
-[data-accent="deriva"]  { --c1: #e07bff; --c2: #7b6cff; }
-[data-accent="canto"]   { --c1: #9ae66e; --c2: #ffd76e; }
-[data-accent="vertigo"] { --c1: #8ff0ff; --c2: #1f6bff; }
+[data-accent="ajedrez"] { --c1: #ffd76e; --c2: #7b9dff; }
+[data-accent="cyber"]   { --c1: #43ffd0; --c2: #ff5ad1; }
+[data-accent="gandia"]  { --c1: #9be25e; --c2: #ffc46e; }
+[data-accent="hogar"]   { --c1: #ff9e64; --c2: #ffd76e; }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
