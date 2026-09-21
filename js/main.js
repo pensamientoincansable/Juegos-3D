@@ -7,6 +7,11 @@
    el recorrido de cámara y los colores de neón. No hace falta tocar el JS.
    (El color de acento se toma de las variables --c1 / --c2 del article)
 
+   Ajustes rápidos: el bloque CONFIG (escala 1–10) fija la intensidad por
+   defecto del volumen de la música, el brillo y el contraste. La música de
+   fondo (audio/Moonlit Quest.mp3) suena en bucle y se controla desde la
+   cabecera con el botón MÚSICA ON/OFF.
+
    Dependencia: Three.js r185 (/lib/three/ · resuelto mediante importmap)
    ============================================================ */
 
@@ -22,9 +27,40 @@ const canvas = document.getElementById('gl');
 const loaderEl = document.getElementById('loader');
 const loaderBar = document.getElementById('loaderBar');
 const toggleBtn = document.getElementById('glToggle');
+const musicToggle = document.getElementById('musicToggle');
 
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const isMobile = matchMedia('(max-width: 760px)').matches;
+
+/* ============================================================
+   CONFIGURACIÓN DE INTENSIDAD — escala de 1 a 10
+   ------------------------------------------------------------
+   Estos tres valores fijan la intensidad por defecto. Para dejarla
+   en otro punto basta con cambiar el número (1 = mínimo, 10 = máximo):
+
+     musicaVolumen : volumen de la música de fondo que suena en bucle
+                     (audio/Moonlit Quest.mp3). 1 = casi inaudible ·
+                     5 = medio · 10 = máximo
+     brillo        : brillo de la escena 3D y sus neones (neones, bloom
+                     e iluminación). 1 = muy tenue · 5 = aspecto original ·
+                     10 = muy brillante
+     contraste     : contraste de la imagen 3D. 1 = suave · 5 = neutro
+                     (sin cambio) · 10 = muy contrastado
+   ============================================================ */
+const CONFIG = {
+  musicaVolumen: 5, // volumen de la música (1–10)
+  brillo: 3,        // brillo de la escena y los neones (1–10): los neones deslumbraban
+  contraste: 5      // contraste de la imagen (1–10); 5 = neutro
+};
+
+/* Factores derivados de la configuración (1–10 → valores reales) */
+const MUSIC_VOLUME = Math.min(1, Math.max(0, CONFIG.musicaVolumen / 10)); // 0…1
+const BRIGHTNESS = Math.max(0.1, CONFIG.brillo / 5); // 5 → 1.0 (aspecto original)
+const CONTRAST = 0.5 + CONFIG.contraste / 10;        // 5 → 1.0 (neutro)
+
+/* El brillo y el contraste se aplican al lienzo 3D como filtro CSS, de modo que
+   afectan a toda la imagen renderizada (neones incluidos) sin tocar el HTML */
+if (canvas) canvas.style.filter = `brightness(${BRIGHTNESS.toFixed(3)}) contrast(${CONTRAST.toFixed(3)})`;
 
 /* Textos de los rótulos 3D */
 const SIGN_MAIN = 'RECREATIVOS';
@@ -356,12 +392,14 @@ function makeCrtMaterial() {
    El umbral del bloom se basa en la luminancia (pesa mucho el verde), así que
    con un factor fijo los violetas y azules no brillarían. Se normaliza cada color
    para que todos los tonos alcancen la misma luminancia.
+   El factor de brillo configurado (CONFIG.brillo) escala la amplificación: a
+   menos brillo, los neones generan menos resplandor quemado y deslumbran menos.
    En móvil no hay bloom (se recortaría a LDR y quemaría el color): sin amplificar */
 function neonColor(hex, lumTarget = 1.35) {
   const c = new THREE.Color(hex);
   if (isMobile) return c;
   const lum = 0.2126 * c.r + 0.7152 * c.g + 0.0722 * c.b;
-  return c.multiplyScalar(lumTarget / Math.max(lum, 0.05));
+  return c.multiplyScalar((lumTarget * BRIGHTNESS) / Math.max(lum, 0.05));
 }
 
 function buildCabinet(game) {
@@ -922,7 +960,7 @@ function initGL() {
     composer.addPass(new RenderPass(scene, camera));
     composer.addPass(new UnrealBloomPass(
       new THREE.Vector2(innerWidth, innerHeight),
-      0.42, // intensidad (atenuada para que no deslumbre)
+      0.42 * BRIGHTNESS, // intensidad (escala con el brillo configurado)
       0.5,  // radio
       0.8   // umbral (solo brillan los neones HDR; las pantallas no se queman)
     ));
@@ -1176,6 +1214,50 @@ if (toggleBtn) {
     }
   });
 }
+
+/* ---------- Música de fondo (reproducción en bucle) ---------- */
+
+// El nombre del archivo contiene un espacio → se codifica al construir la URL
+const MUSIC_URL = 'audio/' + encodeURIComponent('Moonlit Quest.mp3');
+const bgMusic = new Audio(MUSIC_URL);
+bgMusic.loop = true; // bucle continuo: al terminar vuelve a empezar
+bgMusic.preload = 'auto';
+bgMusic.volume = MUSIC_VOLUME; // CONFIG.musicaVolumen (1–10 → 0…1)
+
+let musicOn = true;
+try { musicOn = sessionStorage.getItem('j3d_music') !== 'off'; } catch (e) {}
+
+function applyMusicUI() {
+  if (!musicToggle) return;
+  musicToggle.hidden = false; // solo se muestra si este script está vivo
+  musicToggle.setAttribute('aria-pressed', String(musicOn));
+  musicToggle.querySelector('span').textContent = musicOn ? 'ON' : 'OFF';
+}
+
+/* Los navegadores bloquean el autoplay con sonido: la música arranca con el
+   primer gesto del usuario (clic, toque o tecla) y desde entonces suena en
+   bucle sin interrupciones */
+function tryStartMusic() {
+  if (!musicOn || !bgMusic.paused) return;
+  bgMusic.play().catch(() => { /* aún sin gesto válido: se reintenta en el siguiente */ });
+}
+['pointerdown', 'keydown', 'touchstart'].forEach((evt) => {
+  addEventListener(evt, tryStartMusic, { passive: true });
+});
+
+if (musicToggle) {
+  musicToggle.addEventListener('click', () => {
+    musicOn = !musicOn;
+    try { sessionStorage.setItem('j3d_music', musicOn ? 'on' : 'off'); } catch (e) {}
+    applyMusicUI();
+    if (musicOn) {
+      bgMusic.play().catch(() => {});
+    } else {
+      bgMusic.pause();
+    }
+  });
+}
+applyMusicUI();
 
 /* ---------- Arranque ---------- */
 

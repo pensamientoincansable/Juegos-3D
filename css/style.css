@@ -249,7 +249,8 @@ html.no-gl .loader { display: none; }
   border-color: rgba(110, 198, 255, 0.55);
   box-shadow: 0 0 16px rgba(110, 198, 255, 0.25);
 }
-.gl-toggle {
+.gl-toggle,
+.music-toggle {
   font-family: var(--font-mono);
   font-size: 11px;
   letter-spacing: 0.14em;
@@ -261,9 +262,12 @@ html.no-gl .loader { display: none; }
   cursor: pointer;
   transition: color 0.25s, border-color 0.25s;
 }
-.gl-toggle span { color: #4dffb8; }
-.gl-toggle[aria-pressed="false"] span { color: #ff5e62; }
-.gl-toggle:hover { color: var(--ink); border-color: rgba(140, 150, 220, 0.5); }
+.gl-toggle span,
+.music-toggle span { color: #4dffb8; }
+.gl-toggle[aria-pressed="false"] span,
+.music-toggle[aria-pressed="false"] span { color: #ff5e62; }
+.gl-toggle:hover,
+.music-toggle:hover { color: var(--ink); border-color: rgba(140, 150, 220, 0.5); }
 
 /* ---------- Maquetación común ---------- */
 
