@@ -28,6 +28,7 @@
 [data-accent="cyber"]   { --c1: #43ffd0; --c2: #ff5ad1; }
 [data-accent="gandia"]  { --c1: #9be25e; --c2: #ffc46e; }
 [data-accent="hogar"]   { --c1: #ff9e64; --c2: #ffd76e; }
+[data-accent="solar"]   { --c1: #64d7ff; --c2: #b48cff; }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
 

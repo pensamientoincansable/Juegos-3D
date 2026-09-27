@@ -12,7 +12,7 @@
 <meta property="og:locale" content="es_ES">
 <meta property="og:site_name" content="JUEGOS 3D">
 <meta property="og:title" content="Galería de juegos Three.js | Juegos 3D gratis para navegador">
-<meta property="og:description" content="Cuatro juegos 3D gratuitos que se abren directamente en el navegador: ajedrez, snake neón, rescate en Gandía y construcción de hogares. Todos hechos con Three.js.">
+<meta property="og:description" content="Cinco juegos 3D gratuitos que se abren directamente en el navegador: ajedrez, snake neón, rescate en Gandía, construcción de hogares y limpieza del sistema solar. Todos hechos con Three.js.">
 <meta property="og:url" content="https://pensamientoincansable.github.io/Juegos-3D/">
 <meta property="og:image" content="https://pensamientoincansable.github.io/Juegos-3D/ogp/ogp.jpg">
 <meta name="twitter:card" content="summary_large_image">
@@ -23,7 +23,7 @@
 <link rel="preload" href="fonts/unbounded-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/press-start-2p-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="css/fonts.css">
-<link rel="stylesheet" href="css/style.css?v=20260921-2">
+<link rel="stylesheet" href="css/style.css?v=20260927-1">
 
 <script>
 /* Los navegadores sin soporte de importmap no pueden ejecutar main.js:
@@ -95,6 +95,14 @@
           "image": "https://pensamientoincansable.github.io/Juegos-3D/img/mi-hogar-3d.jpg",
           "description": "Juego de construcción gratuito para navegador: crea tu casa en 3D con materiales PBR, 24 colores, 44 esquemas de texturas, ciclo día/noche, modo paseo en primera persona y 16 misiones con recompensas.",
           "genre": "Construcción", "gamePlatform": "Web Browser", "playMode": "SinglePlayer",
+          "applicationCategory": "Game", "operatingSystem": "Web",
+          "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR" } } },
+        { "@type": "ListItem", "position": 5, "item": {
+          "@type": "VideoGame", "name": "SISTEMA SOLAR — Recolector galáctico",
+          "url": "https://pensamientoincansable.github.io/Juegos-3D/juegos/sistema-solar/",
+          "image": "https://pensamientoincansable.github.io/Juegos-3D/img/sistema-solar.jpg",
+          "description": "Juego de exploración y limpieza espacial gratuito para navegador: recoge basura orbital con WALL·E, recicla materiales en refinerías, desbloquea ocho planetas y construye colonias. Guarda o exporta tu partida.",
+          "genre": "Aventura", "gamePlatform": "Web Browser", "playMode": "SinglePlayer",
           "applicationCategory": "Game", "operatingSystem": "Web",
           "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR" } } }
       ]
@@ -231,6 +239,23 @@
     </a>
   </article>
 
+  <!-- ====================== JUEGO 05 ====================== -->
+  <article class="game section" id="sistema-solar" data-cam="game" data-accent="solar">
+    <div class="game-card">
+      <p class="game-no">JUEGO 05 <span class="game-genre">AVENTURA ESPACIAL</span></p>
+      <h2 class="game-title">SISTEMA SOLAR<span class="game-title-sub">Recolector galáctico</span></h2>
+      <p class="game-desc">Ponte al mando de WALL·E y limpia el sistema solar: recoge basura orbital y gotas de agua, deposítalas en las refinerías y reúne materiales para desbloquear el acceso a los ocho planetas. Explora sus superficies, construye colonias y protege las refinerías de asteroides y OVNIs. Mejora tu equipo y guarda tu progreso en el navegador o exporta la partida para seguir en otro dispositivo.</p>
+      <dl class="game-tech">
+        <dt>MOTOR</dt><dd>Three.js (WebGL)</dd>
+        <dt>JUGADORES</dt><dd>1 jugador · 8 planetas</dd>
+      </dl>
+      <a class="game-play" href="juegos/sistema-solar/">Limpiar el espacio<span>→</span></a>
+    </div>
+    <a class="game-thumb" href="juegos/sistema-solar/" aria-label="Limpiar el espacio en SISTEMA SOLAR">
+      <img src="img/sistema-solar.jpg" width="1376" height="768" loading="lazy" alt="SISTEMA SOLAR — ilustración de WALL·E recogiendo basura espacial junto a la Tierra y una estación de reciclaje orbital">
+    </a>
+  </article>
+
   <!-- ====================== SOBRE THREE.JS ====================== -->
   <section class="about section" id="about" data-cam="about">
     <div class="about-inner">
@@ -239,7 +264,7 @@
       <p>Los juegos de navegador hechos con Three.js tienen una ligereza que las apps no tienen. No hay que instalar ni registrarse: el mundo 3D arranca en cuanto se abre la URL. Se juega con el mismo enlace en el móvil y en el PC, y compartirlo con amigos es cuestión de una sola dirección. Esta misma página también está dibujada con Three.js r185.</p>
       <p>Todo el código de esta galería (las máquinas recreativas, el recorrido de cámara, el neón y el resplandor) está publicado en <a href="https://github.com/pensamientoincansable/Juegos-3D" target="_blank" rel="noopener">GitHub</a>. Si al verla piensas «yo también quiero hacer algo así», es un buen punto de partida.</p>
       <dl class="about-facts">
-        <dt>JUEGOS</dt><dd>4 títulos (todos gratis y 100 % en el navegador)</dd>
+        <dt>JUEGOS</dt><dd>5 títulos (todos gratis y 100 % en el navegador)</dd>
         <dt>COMPATIBLE</dt><dd>Navegadores principales de móvil, tablet y PC</dd>
         <dt>CREADO POR</dt><dd>JUEGOS 3D (Desengany)</dd>
       </dl>

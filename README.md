@@ -11,7 +11,7 @@ salón recreativo de neón dibujado en tiempo real con **Three.js r185**.
 ## Estructura
 
 ```
-index.html          Página principal (portada, 4 juegos, sobre Three.js, FAQ, pie)
+index.html          Página principal (portada, 5 juegos, sobre Three.js, FAQ, pie)
 licencias.html      Créditos y licencias
 css/style.css       Estilos (dos modos: html.gl-on con 3D / html.no-gl solo HTML)
 css/fonts.css       @font-face de las tipografías locales
